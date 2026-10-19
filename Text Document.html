@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ВАДИМ ЛИПЧАНСКИЙ · БЫТОВОЙ КЛУБ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #c9a227;
+    --gold-bright: #e8c547;
+    --blood: #8b1a1a;
+    --blood-bright: #b32020;
+    --ink: #0d0d0d;
+    --paper: #1a1612;
+    --smoke: #2a241e;
+    --bone: #e8e0d0;
+    --grain: rgba(0,0,0,0.06);
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'Oswald', sans-serif;
+    background: #080605;
+    color: var(--bone);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ==== ФОН: зерно + виньетка + дым ==== */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(139, 26, 26, 0.18) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 80%, rgba(201, 162, 39, 0.08) 0%, transparent 55%),
+      radial-gradient(ellipse at center, #15100c 0%, #050303 100%);
+    z-index: -2;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.28) 0px, rgba(0,0,0,0.28) 1px, transparent 1px, transparent 3px);
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: -1;
+    mix-blend-mode: overlay;
+  }
+
+  /* ==== СТАРТОВЫЙ ЭКРАН ==== */
+  .start-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    background:
+      radial-gradient(ellipse at center, rgba(40, 20, 15, 0.95) 0%, rgba(5, 3, 2, 0.99) 70%),
+      #050303;
+    padding: 20px;
+    transition: opacity 0.8s ease, visibility 0.8s;
+  }
+  .start-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .start-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: clamp(38px, 7vw, 84px);
+    letter-spacing: 4px;
+    line-height: 0.95;
+    text-transform: uppercase;
+    text-align: center;
+    background: linear-gradient(180deg, #f0d975 0%, #c9a227 45%, #6a5210 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 8px 40px rgba(201, 162, 39, 0.3);
+    filter: drop-shadow(0 4px 2px rgba(0,0,0,0.8));
+  }
+  .start-title .line2 {
+    display: block;
+    font-style: italic;
+    font-size: 0.55em;
+    letter-spacing: 8px;
+    margin-top: 10px;
+    color: transparent;
+  }
+  .start-sub {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(13px, 1.6vw, 17px);
+    color: rgba(232, 224, 208, 0.45);
+    letter-spacing: 3px;
+    text-align: center;
+    max-width: 500px;
+    line-height: 1.6;
+  }
+  .start-sub::before, .start-sub::after {
+    content: '◆';
+    margin: 0 14px;
+    color: var(--blood-bright);
+    font-style: normal;
+  }
+
+  .btn-start {
+    font-family: 'Oswald', sans-serif;
+    margin-top: 10px;
+    padding: 20px 60px;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    color: var(--bone);
+    background:
+      linear-gradient(135deg, #8b1a1a 0%, #5a0f0f 100%);
+    border: 1px solid var(--gold);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.25s;
+    clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.6), 0 10px 40px rgba(139, 26, 26, 0.5);
+  }
+  .btn-start:hover {
+    background: linear-gradient(135deg, #b32020 0%, #8b1a1a 100%);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.6), 0 15px 60px rgba(179, 32, 32, 0.8);
+    letter-spacing: 10px;
+    color: #fff8e0;
+  }
+  .btn-start:active { transform: scale(0.98); }
+
+  .start-rule {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 12px;
+    color: rgba(201, 162, 39, 0.4);
+    letter-spacing: 2px;
+    margin-top: 20px;
+  }
+
+  /* ==== ИГРА ==== */
+  .game {
+    width: 1080px;
+    max-width: 98vw;
+    margin: 24px auto;
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 0;
+    background:
+      linear-gradient(135deg, rgba(26, 22, 18, 0.96), rgba(13, 10, 8, 0.99));
+    border: 1px solid rgba(201, 162, 39, 0.35);
+    border-radius: 2px;
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,0.8),
+      0 0 80px rgba(139, 26, 26, 0.25),
+      0 30px 80px rgba(0,0,0,0.9);
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
+  }
+  .game.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .game::before, .game::after {
+    content: '';
+    position: absolute;
+    width: 50px; height: 50px;
+    border: 2px solid var(--gold);
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+  .game::before { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+  .game::after { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+
+  /* ==== ЛЕВАЯ ПАНЕЛЬ ==== */
+  .vadim-panel {
+    position: relative;
+    padding: 50px 20px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(139, 26, 26, 0.4) 0%, transparent 65%),
+      linear-gradient(180deg, rgba(20, 15, 12, 0.6), rgba(8, 6, 4, 0.95));
+    border-right: 1px solid rgba(201, 162, 39, 0.2);
+  }
+
+  .club-seal {
+    position: absolute;
+    top: 26px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: rgba(201, 162, 39, 0.55);
+    text-transform: uppercase;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .club-seal::before, .club-seal::after {
+    content: '—';
+    margin: 0 10px;
+    color: rgba(201, 162, 39, 0.3);
+  }
+
+  /* ==== ВАДИМ — ТАЙЛЕР ДЁРДЕН (узкий, длинный, чёрные волосы) ==== */
+  .vadim-stage {
+    position: relative;
+    width: 200px;
+    height: 420px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    cursor: pointer;
+    perspective: 800px;
+  }
+  .vadim-stage::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 160px;
+    height: 30px;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.9) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(4px);
+  }
+  .vadim-stage::after {
+    content: '';
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(ellipse at center, rgba(139,26,26,0.4) 0%, transparent 65%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: -1;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .vadim-stage:hover::after { opacity: 1; }
+
+  .vadim {
+    position: relative;
+    width: 180px;
+    height: 400px;
+    transition: transform 0.25s cubic-bezier(.2,.9,.3,1.4);
+    filter: drop-shadow(0 20px 30px rgba(0,0,0,0.9));
+    z-index: 5;
+  }
+  .vadim-stage:hover .vadim { transform: translateY(-6px) scale(1.03); }
+  .vadim.clicked { animation: shake 0.45s cubic-bezier(.36,.07,.19,.97); }
+  @keyframes shake {
+    0%,100% { transform: translateX(0) rotate(0); }
+    20% { transform: translateX(-8px) rotate(-2deg); }
+    40% { transform: translateX(7px) rotate(2deg); }
+    60% { transform: translateX(-5px) rotate(-1.5deg); }
+    80% { transform: translateX(4px) rotate(1deg); }
+  }
+
+  /* ---- СЛОИ ТЕЛА (рисуем от ног к голове) ---- */
+
+  /* ноги — длинные, тонкие */
+  .leg {
+    position: absolute;
+    bottom: 0;
+    width: 26px;
+    height: 175px;
+    background: linear-gradient(90deg, #0a0a0a 0%, #1c1c1c 45%, #2a2a2a 55%, #1c1c1c 100%);
+    border-radius: 2px;
+    z-index: 2;
+  }
+  .leg.left { left: 50%; margin-left: -24px; }
+  .leg.right { right: 50%; margin-right: -24px; }
+
+  /* ботинки — остроносые */
+  .shoe {
+    position: absolute;
+    bottom: -6px;
+    width: 44px;
+    height: 18px;
+    background: linear-gradient(180deg, #2a1f15 0%, #0a0806 100%);
+    border-radius: 10px 20px 4px 4px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.95), inset 0 1px 0 rgba(120,90,50,0.15);
+  }
+  .shoe::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 6px;
+    width: 22px;
+    height: 2px;
+    background: rgba(201, 162, 39, 0.25);
+    border-radius: 2px;
+  }
+  .leg.left .shoe { left: -10px; border-radius: 20px 4px 4px 10px; transform: scaleX(-1); }
+  .leg.right .shoe { right: -10px; }
+
+  /* торс — узкий, длинный, в пальто */
+  .torso {
+    position: absolute;
+    bottom: 168px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 74px;
+    height: 200px;
+    background:
+      linear-gradient(180deg, #232019 0%, #16140f 40%, #0f0d09 100%);
+    border-radius: 8px 8px 4px 4px;
+    z-index: 3;
+    box-shadow:
+      inset 0 0 25px rgba(0,0,0,0.9),
+      inset 4px 0 12px rgba(80, 65, 40, 0.15),
+      inset -4px 0 12px rgba(0, 0, 0, 0.6);
+  }
+  /* лацканы пальто */
+  .torso::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 22px solid transparent;
+    border-right: 22px solid transparent;
+    border-top: 90px solid #1c1a15;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.7));
+  }
+  /* рубашка под пальто */
+  .torso::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 95px;
+    background: linear-gradient(180deg, #e8e0d0 0%, #b8b0a0 100%);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 88%, 0 100%);
+    z-index: -1;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
+  }
+
+  /* галстук — кровавый, тонкий */
+  .tie {
+    position: absolute;
+    bottom: 275px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 11px;
+    height: 85px;
+    background: linear-gradient(180deg, #a02020 0%, #6a1010 55%, #3a0808 100%);
+    clip-path: polygon(30% 0, 70% 0, 100% 85%, 50% 100%, 0 85%);
+    z-index: 5;
+    box-shadow: 0 0 10px rgba(139,26,26,0.5);
+  }
+  .tie::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px;
+    height: 10px;
+    background: #8b1a1a;
+    clip-path: polygon(0 0, 100% 0, 75% 100%, 25% 100%);
+  }
+
+  /* руки в рукавах пальто */
+  .arm {
+    position: absolute;
+    bottom: 175px;
+    width: 20px;
+    height: 165px;
+    background: linear-gradient(180deg, #1c1a15 0%, #100f0b 85%, #1c1a15 100%);
+    border-radius: 10px;
+    z-index: 4;
+    box-shadow: inset -2px 0 6px rgba(0,0,0,0.6), inset 2px 0 4px rgba(80,65,40,0.1);
+  }
+  .arm.left {
+    left: 50%;
+    margin-left: -48px;
+    transform: rotate(4deg);
+    transform-origin: top center;
+  }
+  .arm.right {
+    right: 50%;
+    margin-right: -48px;
+    transform: rotate(-4deg);
+    transform-origin: top center;
+  }
+  /* кисти рук */
+  .arm::after {
+    content: '';
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 22px;
+    background: radial-gradient(ellipse at 50% 40%, #d4ab84 0%, #a67c56 80%, #7a5636 100%);
+    border-radius: 4px 4px 8px 8px;
+    box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3);
+  }
+
+  /* шея */
+  .neck {
+    position: absolute;
+    bottom: 360px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(180deg, #b88f68 0%, #8a6544 100%);
+    z-index: 4;
+    border-radius: 2px;
+  }
+
+  /* ---- ГОЛОВА — ТАЙЛЕР ---- */
+  .head {
+    position: absolute;
+    bottom: 368px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 68px;
+    height: 82px;
+    background:
+      radial-gradient(ellipse at 40% 30%, #e8c39a 0%, #c9a07a 50%, #8a6544 100%);
+    border-radius: 46% 46% 42% 42% / 52% 52% 48% 48%;
+    z-index: 6;
+    box-shadow:
+      inset -4px -8px 16px rgba(0,0,0,0.35),
+      inset 4px 4px 12px rgba(255, 220, 180, 0.2),
+      0 4px 12px rgba(0,0,0,0.5);
+  }
+
+  /* уши */
+  .ear {
+    position: absolute;
+    top: 34px;
+    width: 11px;
+    height: 22px;
+    background: radial-gradient(ellipse at 40% 40%, #c9a07a 0%, #8a6544 100%);
+    border-radius: 50%;
+    z-index: 5;
+    box-shadow: inset -1px 0 3px rgba(0,0,0,0.4);
+  }
+  .ear.left { left: -7px; }
+  .ear.right { right: -7px; }
+
+  /* чёрные волосы — прилизанные, с пробором */
+  .hair {
+    position: absolute;
+    top: -10px;
+    left: -6px;
+    width: 80px;
+    height: 50px;
+    background:
+      linear-gradient(160deg, #1c1c1c 0%, #0a0a0a 50%, #040404 100%);
+    border-radius: 50% 50% 20% 20% / 78% 78% 22% 22%;
+    z-index: 8;
+    box-shadow:
+      inset 0 -4px 10px rgba(60,60,60,0.4),
+      inset 2px 2px 6px rgba(90,90,90,0.25),
+      0 2px 6px rgba(0,0,0,0.8);
+  }
+  /* пробор — тонкая светлая линия */
+  .hair::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 22px;
+    width: 1.5px;
+    height: 30px;
+    background: rgba(140, 140, 140, 0.35);
+    transform: rotate(-8deg);
+    border-radius: 2px;
+  }
+  /* виски — уходят вниз */
+  .hair::after {
+    content: '';
+    position: absolute;
+    top: 30px;
+    right: 4px;
+    width: 12px;
+    height: 18px;
+    background: #0a0a0a;
+    border-radius: 2px 2px 8px 8px;
+    box-shadow: inset -2px 0 3px rgba(60,60,60,0.3);
+  }
+
+  /* брови — прямые, тяжёлые */
+  .brow {
+    position: absolute;
+    top: 28px;
+    width: 20px;
+    height: 5px;
+    background: linear-gradient(180deg, #1a1a1a 0%, #050505 100%);
+    z-index: 9;
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  }
+  .brow.left { left: 9px; transform: rotate(-3deg); }
+  .brow.right { right: 9px; transform: rotate(3deg); }
+
+  /* глаза — впалые, тёмные */
+  .eye-socket {
+    position: absolute;
+    top: 38px;
+    width: 18px;
+    height: 12px;
+    background: radial-gradient(ellipse at 50% 50%, rgba(60,30,20,0.6) 0%, transparent 70%);
+    z-index: 9;
+    border-radius: 50%;
+  }
+  .eye-socket.left { left: 8px; }
+  .eye-socket.right { right: 8px; }
+  .eye {
+    position: absolute;
+    top: 40px;
+    width: 10px;
+    height: 8px;
+    background: radial-gradient(circle at 40% 45%, #4a3020 0%, #1a0f08 45%, #050302 100%);
+    border-radius: 50%;
+    z-index: 10;
+    box-shadow: 0 0 3px rgba(0,0,0,0.9), inset 0 -1px 2px rgba(255,255,255,0.08);
+  }
+  .eye.left { left: 12px; }
+  .eye.right { right: 12px; }
+
+  /* нос — длинный, крючковатый */
+  .nose {
+    position: absolute;
+    top: 42px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 13px;
+    height: 30px;
+    background: linear-gradient(180deg, #c9a07a 0%, #b88f68 60%, #9a7050 100%);
+    border-radius: 4px 4px 10px 10px / 4px 4px 14px 14px;
+    z-index: 11;
+    box-shadow:
+      inset -4px 0 5px rgba(0,0,0,0.35),
+      inset 2px 0 3px rgba(255,220,180,0.25);
+  }
+  .nose::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 17px;
+    height: 7px;
+    background: radial-gradient(ellipse at 50% 40%, #9a7050 0%, #6a4a30 100%);
+    border-radius: 50%;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
+  }
+
+  /* рот — тонкая линия, плотно сжатый */
+  .mouth {
+    position: absolute;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    background: #4a1a10;
+    border-radius: 1px 1px 3px 3px;
+    z-index: 11;
+    box-shadow: 0 1px 0 rgba(232,195,154,0.2);
+  }
+
+  /* скулы / тени */
+  .cheek {
+    position: absolute;
+    top: 55px;
+    width: 12px;
+    height: 18px;
+    background: radial-gradient(ellipse at center, rgba(120,80,50,0.35) 0%, transparent 70%);
+    z-index: 9;
+    border-radius: 50%;
+  }
+  .cheek.left { left: 2px; }
+  .cheek.right { right: 2px; }
+
+  /* подсказка */
+  .hint {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: rgba(201, 162, 39, 0.8);
+    text-align: center;
+    letter-spacing: 0.5px;
+    line-height: 1.6;
+    animation: pulse 2.4s infinite;
+    max-width: 240px;
+    margin-top: 8px;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: .55; }
+    50% { opacity: 1; }
+  }
+
+  /* ==== ПРАВАЯ ПАНЕЛЬ ==== */
+  .info-panel {
+    padding: 36px 40px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 34px;
+    letter-spacing: 2px;
+    line-height: 1;
+    background: linear-gradient(180deg, #f0d975 0%, #c9a227 50%, #8a6e18 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-transform: uppercase;
+    text-shadow: 0 4px 20px rgba(201, 162, 39, 0.3);
+  }
+  .subtitle {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: rgba(232, 224, 208, 0.5);
+    letter-spacing: 1px;
+    margin-top: 6px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(201, 162, 39, 0.25);
+  }
+  .subtitle::before {
+    content: '◆ ';
+    color: var(--blood-bright);
+    font-style: normal;
+    margin-right: 4px;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 4px;
+  }
+  .stat {
+    background:
+      linear-gradient(135deg, rgba(30, 25, 20, 0.9), rgba(15, 12, 8, 0.95));
+    border: 1px solid rgba(201, 162, 39, 0.25);
+    border-radius: 2px;
+    padding: 14px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--gold);
+  }
+  .stat .label {
+    font-size: 10px;
+    color: rgba(201, 162, 39, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: 600;
+  }
+  .stat .value {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--bone);
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+
+  .xp-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .xp-bar-outer {
+    width: 100%;
+    height: 10px;
+    background: #0a0806;
+    border: 1px solid rgba(201, 162, 39, 0.2);
+    border-radius: 1px;
+    overflow: hidden;
+    position: relative;
+  }
+  .xp-bar-outer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(90deg, transparent 0, transparent 14px, rgba(0,0,0,0.5) 14px, rgba(0,0,0,0.5) 16px);
+    pointer-events: none;
+  }
+  .xp-bar-inner {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #8b1a1a 0%, #b32020 50%, #e8c547 100%);
+    box-shadow: 0 0 12px rgba(232, 197, 71, 0.5);
+    transition: width .5s cubic-bezier(.2,.8,.3,1);
+  }
+  .xp-text {
+    font-size: 11px;
+    color: rgba(232, 224, 208, 0.4);
+    text-align: right;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .quest-card {
+    background:
+      linear-gradient(135deg, rgba(40, 30, 20, 0.6), rgba(20, 15, 10, 0.9));
+    border: 1px solid rgba(201, 162, 39, 0.3);
+    border-left: 4px solid var(--blood-bright);
+    border-radius: 2px;
+    padding: 20px 22px;
+    min-height: 170px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.5);
+  }
+  .quest-card::before {
+    content: '◆';
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    color: var(--gold);
+    font-size: 12px;
+    opacity: 0.4;
+  }
+
+  .diff-badge {
+    display: inline-block;
+    font-size: 10px;
+    padding: 4px 16px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--blood), var(--blood-bright));
+    color: var(--bone);
+    width: fit-content;
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  }
+
+  .quest-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold-bright);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .quest-desc {
+    font-size: 14px;
+    color: rgba(232, 224, 208, 0.75);
+    line-height: 1.5;
+    font-weight: 300;
+    letter-spacing: 0.3px;
+  }
+  .quest-reward {
+    font-size: 12px;
+    color: #6fbf85;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(111, 191, 133, 0.3);
+  }
+  .quest-reward::before {
+    content: '🏆 ';
+    margin-right: 4px;
+  }
+
+  button {
+    font-family: 'Oswald', sans-serif;
+    cursor: pointer;
+    border: none;
+    padding: 16px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--bone);
+    transition: all .2s;
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-done {
+    background:
+      linear-gradient(135deg, #8b1a1a 0%, #5a0f0f 100%);
+    border: 1px solid var(--blood-bright);
+    box-shadow: 0 4px 20px rgba(139, 26, 26, 0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  }
+  .btn-done:not(:disabled):hover {
+    background: linear-gradient(135deg, #b32020 0%, #8b1a1a 100%);
+    box-shadow: 0 6px 30px rgba(179, 32, 32, 0.6), inset 0 1px 0 rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+  }
+  .btn-done:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    filter: grayscale(0.6);
+  }
+
+  .log {
+    flex: 1;
+    max-height: 130px;
+    overflow-y: auto;
+    font-size: 12px;
+    color: rgba(232, 224, 208, 0.55);
+    line-height: 1.7;
+    background: rgba(5, 3, 2, 0.6);
+    padding: 12px 16px;
+    border: 1px solid rgba(201, 162, 39, 0.15);
+    border-radius: 2px;
+    font-weight: 300;
+    letter-spacing: 0.3px;
+  }
+  .log::-webkit-scrollbar { width: 4px; }
+  .log::-webkit-scrollbar-track { background: transparent; }
+  .log::-webkit-scrollbar-thumb { background: rgba(201, 162, 39, 0.3); }
+  .log div {
+    border-bottom: 1px solid rgba(201, 162, 39, 0.08);
+    padding: 4px 0;
+  }
+  .log div:last-child { border-bottom: none; }
+  .log .ok { color: #6fbf85; }
+  .log .lvl { color: var(--gold-bright); font-weight: 600; letter-spacing: 1px; }
+
+  .toast {
+    position: fixed;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: linear-gradient(135deg, #8b1a1a, #5a0f0f);
+    color: var(--bone);
+    padding: 14px 36px;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    border: 1px solid var(--gold);
+    box-shadow: 0 10px 40px rgba(139, 26, 26, 0.6), 0 0 0 1px rgba(0,0,0,0.5);
+    transition: transform .4s cubic-bezier(.2,1.4,.5,1);
+    z-index: 2000;
+    pointer-events: none;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.levelup {
+    background: linear-gradient(135deg, #8a6e18, #c9a227);
+    color: #0d0d0d;
+    box-shadow: 0 10px 40px rgba(201, 162, 39, 0.6);
+  }
+
+  @media (max-width: 800px) {
+    .game { grid-template-columns: 1fr; }
+    .vadim-panel { border-right: none; border-bottom: 1px solid rgba(201,162,39,0.2); padding: 40px 20px 30px; }
+    .vadim-stage { width: 180px; height: 380px; }
+    .vadim { transform: scale(0.9); transform-origin: bottom center; }
+    .title { font-size: 26px; }
+    .info-panel { padding: 26px 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==== СТАРТОВЫЙ ЭКРАН ==== -->
+<div class="start-screen" id="startScreen">
+  <div class="start-title">
+    Бытовой клуб
+    <span class="line2">Вадим Липчанский</span>
+  </div>
+  <div class="start-sub">
+    Правило первое: не рассказывай о быте.<br>
+    Правило второе: выполняй задания Вадима.
+  </div>
+  <button class="btn-start" id="startBtn">▶ Старт</button>
+  <div class="start-rule">— ты не твоя работа, ты не твои дела —</div>
+</div>
+
+<!-- ==== ТОСТ ==== -->
+<div class="toast" id="toast"></div>
+
+<!-- ==== ИГРА ==== -->
+<div class="game" id="game">
+  <!-- ЛЕВАЯ ПАНЕЛЬ: ВАДИМ -->
+  <div class="vadim-panel">
+    <div class="club-seal">Бойцовский клуб быта</div>
+
+    <div class="vadim-stage" id="vadim" title="Кликни по Вадиму — он даст задание">
+      <div class="vadim" id="vadimBody">
+        <div class="leg left"><div class="shoe"></div></div>
+        <div class="leg right"><div class="shoe"></div></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+        <div class="torso"></div>
+        <div class="tie"></div>
+        <div class="neck"></div>
+        <div class="head">
+          <div class="ear left"></div>
+          <div class="ear right"></div>
+          <div class="hair"></div>
+          <div class="brow left"></div>
+          <div class="brow right"></div>
+          <div class="eye-socket left"></div>
+          <div class="eye-socket right"></div>
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="cheek left"></div>
+          <div class="cheek right"></div>
+          <div class="nose"></div>
+          <div class="mouth"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hint">
+      «Правило первое:<br>никому не рассказывай о быте»
+    </div>
+  </div>
+
+  <!-- ПРАВАЯ ПАНЕЛЬ -->
+  <div class="info-panel">
+    <div>
+      <div class="title">Вадим Липчанский</div>
+      <div class="subtitle">Хозяин бытового клуба · выдаёт задания лично</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="label">Уровень</div>
+        <div class="value" id="lvl">1</div>
+      </div>
+      <div class="stat">
+        <div class="label">Опыт</div>
+        <div class="value" id="xpVal" style="font-size:22px">0 / 50</div>
+      </div>
+    </div>
+
+    <div class="xp-wrap">
+      <div class="xp-bar-outer"><div class="xp-bar-inner" id="xpBar"></div></div>
+      <div class="xp-text" id="xpText">0% до следующего уровня</div>
+    </div>
+
+    <div class="quest-card" id="questCard">
+      <span class="diff-badge">Ожидание</span>
+      <div class="quest-name">Вадим ждёт клика...</div>
+      <div class="quest-desc">Кликни по длинному парню слева, и он выдаст тебе первое бытовое задание. Не заставляй его ждать.</div>
+    </div>
+
+    <button class="btn-done" id="doneBtn" disabled>✅ Задание выполнено</button>
+
+    <div class="log" id="log"></div>
+  </div>
+</div>
+
+<script>
+/* ================= ДАННЫЕ ================= */
+const QUESTS = [
+  { name: "Сварить кашу", desc: "Вадим хочет гречневую кашу. Не перевари — он следит за каждой крупинкой.", reward: 10 },
+  { name: "Пропылесосить комнату", desc: "Вадим заметил пыль под диваном. Пылесось тщательно, он проверит углы.", reward: 15 },
+  { name: "Помыть посуду", desc: "Гора тарелок в раковине. Вадим не терпит грязную посуду и разводы на стекле.", reward: 20 },
+  { name: "Вынести мусор", desc: "Пакет уже не закрывается. Вадим морщит нос и молча указывает на дверь.", reward: 25 },
+  { name: "Полить цветы", desc: "Фикус Вадима засыхает. Не залей его — у него свои отношения с этим растением.", reward: 30 },
+  { name: "Почистить картошку", desc: "Вадим хочет пюре. Картошка должна быть идеальной, без глазков.", reward: 35 },
+  { name: "Протереть пыль", desc: "Полки, подоконник, телевизор. Вадим проверяет пальцем и хмурится.", reward: 40 },
+  { name: "Заправить кровать", desc: "Уголки должны быть ровными. Вадим строг и не любит складки на покрывале.", reward: 45 },
+  { name: "Помыть полы", desc: "Вадим уже стоит с тряпкой наготове. Вперёд, без пощады к грязи.", reward: 50 },
+  { name: "Приготовить борщ", desc: "Финальное испытание. Вадим ждёт настоящий борщ. Со сметаной. Это его клуб.", reward: 60 },
+];
+
+const LEVEL_XP = 50;
+
+/* ================= СОСТОЯНИЕ ================= */
+let state = {
+  level: 1,
+  xp: 0,
+  xpNeeded: LEVEL_XP,
+  questIndex: 0,
+  currentQuest: null,
+  questsDone: 0,
+  started: false,
+};
+
+/* ================= DOM ================= */
+const startScreen = document.getElementById('startScreen');
+const startBtn = document.getElementById('startBtn');
+const gameEl = document.getElementById('game');
+const vadimEl = document.getElementById('vadim');
+const vadimBody = document.getElementById('vadimBody');
+const questCard = document.getElementById('questCard');
+const doneBtn = document.getElementById('doneBtn');
+const lvlEl = document.getElementById('lvl');
+const xpValEl = document.getElementById('xpVal');
+const xpBar = document.getElementById('xpBar');
+const xpText = document.getElementById('xpText');
+const logEl = document.getElementById('log');
+const toastEl = document.getElementById('toast');
+
+/* ================= ЛОГИКА ================= */
+function toast(msg, isLevel = false) {
+  toastEl.textContent = msg;
+  toastEl.classList.toggle('levelup', isLevel);
+  toastEl.classList.add('show');
+  clearTimeout(toastEl._t);
+  toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 2400);
+}
+
+function log(msg, cls = '') {
+  const d = document.createElement('div');
+  d.className = cls;
+  d.textContent = msg;
+  logEl.prepend(d);
+  while (logEl.children.length > 30) logEl.lastChild.remove();
+}
+
+function updateUI() {
+  lvlEl.textContent = state.level;
+  xpValEl.textContent = `${state.xp} / ${state.xpNeeded}`;
+  const pct = Math.min(100, (state.xp / state.xpNeeded) * 100);
+  xpBar.style.width = pct + '%';
+  xpText.textContent = `${Math.round(pct)}% до следующего уровня`;
+}
+
+function scaleDifficulty() {
+  const base = QUESTS[state.questIndex % QUESTS.length];
+  const mult = 1 + (state.level - 1) * 0.15;
+  return {
+    name: base.name,
+    desc: base.desc,
+    reward: Math.round(base.reward * mult),
+  };
+}
+
+function giveQuest() {
+  if (state.currentQuest) {
+    toast("⏳ Сначала выполни текущее задание!");
+    return;
+  }
+  state.currentQuest = scaleDifficulty();
+  const q = state.currentQuest;
+
+  questCard.innerHTML = `
+    <span class="diff-badge">Сложность: ур. ${state.level}</span>
+    <div class="quest-name">${q.name}</div>
+    <div class="quest-desc">${q.desc}</div>
+    <div class="quest-reward">Награда: +${q.reward} XP</div>
+  `;
+  doneBtn.disabled = false;
+  log(`📋 Вадим выдал задание: «${q.name}» (+${q.reward} XP)`);
+
+  vadimBody.classList.add('clicked');
+  setTimeout(() => vadimBody.classList.remove('clicked'), 450);
+}
+
+function completeQuest() {
+  if (!state.currentQuest) return;
+  const q = state.currentQuest;
+  const reward = q.reward;
+
+  state.xp += reward;
+  state.questsDone++;
+  state.questIndex++;
+  state.currentQuest = null;
+  doneBtn.disabled = true;
+
+  log(`✅ Выполнено: «${q.name}» — +${reward} XP`, 'ok');
+  toast(`+${reward} XP! Молодец!`);
+  questCard.innerHTML = `
+    <span class="diff-badge">Готово</span>
+    <div class="quest-name">Задание выполнено!</div>
+    <div class="quest-desc">Вадим кивнул. Кликни по нему, чтобы получить следующее.</div>
+  `;
+
+  checkLevelUp();
+  updateUI();
+}
+
+function checkLevelUp() {
+  while (state.xp >= state.xpNeeded) {
+    state.xp -= state.xpNeeded;
+    state.level++;
+    state.xpNeeded = Math.round(LEVEL_XP * Math.pow(1.25, state.level - 1));
+    log(`⭐ УРОВЕНЬ ПОВЫШЕН! Теперь ${state.level} lvl. Задания сложнее.`, 'lvl');
+    toast(`⭐ Уровень ${state.level}! Вадим впечатлён`, true);
+  }
+}
+
+/* ================= СТАРТ ================= */
+startBtn.addEventListener('click', () => {
+  startScreen.classList.add('hidden');
+  gameEl.classList.add('revealed');
+  state.started = true;
+  setTimeout(() => {
+    log('👋 Привет! Я Вадим. Кликни по мне — дам задание.');
+  }, 600);
+});
+
+vadimEl.addEventListener('click', () => {
+  if (state.started) giveQuest();
+});
+doneBtn.addEventListener('click', completeQuest);
+
+updateUI();
+</script>
+</body>
+</html>
